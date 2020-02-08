@@ -4,12 +4,11 @@ rm(list=ls())
 gc()
 
 #prerequisites
-source("./R/util.R")
-require_libraries(c("dplyr",
-                    "tidyr",
-                    "magrittr",
-                    "data.table",
-                    "devtools"))
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(data.table)
+library(devtools)
 
 #install from github
 install_github( "ajdamico/lodown" , dependencies = TRUE)
@@ -33,10 +32,14 @@ col_nm<-data.frame(colnames=names(read.csv(npi_header)),
                    stringsAsFactors = F) %>%
   mutate(colnames2=gsub("_$","",gsub("\\.+","_",tolower(colnames)))) %>%
   mutate(colclass=ifelse(grepl("code",colnames2)&!grepl("country|state|gender|taxonomy|postal",colnames2),
-                          'integer','character')) %>%
+                          'integer','character'))
   mutate(include=ifelse(colnames2 %in% c("npi",
                                          "entity_type_code",
                                          "provider_organization_name_legal_business_name",
+                                         "provider_last_name_legal_name",
+                                         "provider_first_name",
+                                         "provider_middle_name",
+                                         "provider_gender_code",
                                          "provider_first_line_business_practice_location_address",
                                          "provider_second_line_business_practice_location_address",
                                          "provider_business_practice_location_address_city_name",
@@ -56,8 +59,8 @@ col_nm<-data.frame(colnames=names(read.csv(npi_header)),
                         1,0))
 
 nppes_df<-fread(npi_filepath,
-                select=which(col_nm$include==1),
-                col.names=col_nm$colnames2[col_nm$include==1],
+                # select=which(col_nm$include==1),
+                # col.names=col_nm$colnames2[col_nm$include==1],
                 na.strings="") %>%
   unite("practice_location",c("provider_first_line_business_practice_location_address",
                               "provider_second_line_business_practice_location_address",
